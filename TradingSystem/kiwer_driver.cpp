@@ -2,6 +2,10 @@
 #include "kiwer_api.cpp"
 #include "stock_broker_driver.h"
 
+class MockKiwerAPI : public KiwerAPI {
+
+};
+
 class KiwerDriver : public StockBrokerDriver {
 public:
 	KiwerDriver(KiwerAPI* kiwerAPI) : kiwerAPI{ kiwerAPI } {}
