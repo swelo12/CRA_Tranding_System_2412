@@ -7,7 +7,6 @@ using namespace testing;
 
 class TraingFixture : public Test{
 public:
-	StockerBrockerDriverInterface mockInterface;
 	std::string ID = "1234";
 	std::string SUCCESS_PASSWORD = "1234";
 	std::string STOCK_CODE = "code";
@@ -26,10 +25,10 @@ private:
 /* 1. StockerBrockerDriverInterface Mock Test*/
 TEST_F(TraingFixture, TEST_LOGIN)
 {
-	mockDriver->login(ID, SUCCESS_PASSWORD);
-
-	EXPECT_CALL(StockerBrockerDriverInterface, login(_,_))
+	EXPECT_CALL(mockStockAPI, login(_, _))
 		.call(1);
+
+	mockDriver->login(ID, SUCCESS_PASSWORD);
 }
 
 TEST_F(TraingFixture, TEST_BUY)
@@ -37,10 +36,10 @@ TEST_F(TraingFixture, TEST_BUY)
 	int price = 100;
 	int num = 10;
 
-	mockDriver->buy(STOCK_CODE, price, num);
-
-	EXPECT_CALL(StockerBrockerDriverInterface, buy(_,_, _))
+	EXPECT_CALL(mockStockAPI, buy(_, _, _))
 		.call(1);
+
+	mockDriver->buy(STOCK_CODE, price, num);
 }
 
 TEST_F(TraingFixture, TEST_SELL)
@@ -48,10 +47,10 @@ TEST_F(TraingFixture, TEST_SELL)
 	int price = 100;
 	int num = 10;
 
-	mockDriver->sell(STOCK_CODE, price, num);
-
-	EXPECT_CALL(StockerBrockerDriverInterface, sell(_, _, _))
+	EXPECT_CALL(mockStockAPI, sell(_, _, _))
 		.call(1);
+
+	mockDriver->sell(STOCK_CODE, price, num);
 }
 
 TEST_F(TraingFixture, TEST_GET_PRICE)
@@ -61,7 +60,6 @@ TEST_F(TraingFixture, TEST_GET_PRICE)
 
 	EXPECT_EQ(except, actual);
 }
-
 
 /* 2. Auto trading Test*/
 TEST_F(TraingFixture, TEST_buyNiceTiming__Buy_success)
@@ -106,9 +104,9 @@ TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_success)
 		.WillRepeatedly(Return(price[2]));
 
 	int cellCount = 3;
-	int sellMoney = autoTradingSystem->sellNiceTiming(STOCK_CODE, cellCount);
+	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, cellCount);
 
-	EXPECT_EQ(cellCount * price[2], sellMoney);
+	EXPECT_EQ(true, success);
 }
 
 TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_fail)
@@ -123,9 +121,9 @@ TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_fail)
 		.WillRepeatedly(Return(price[2]));
 
 	int cellCount = 3;
-	int sellMoney = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
+	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
 
-	EXPECT_EQ(0, sellMoney);
+	EXPECT_EQ(false, success);
 }
 
 int main() {
