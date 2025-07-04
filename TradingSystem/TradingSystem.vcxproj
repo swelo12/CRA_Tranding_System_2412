@@ -138,6 +138,8 @@
     <ClCompile Include="nemo_driver.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">  %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <ClCompile Include="test_auto_trading_system.cpp" />
+    <ClCompile Include="test_code_selectStockBrocker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -21,7 +21,6 @@ public:
 	NemoDriver nemoDriver{ &nemoAPI };
 	MockDriver mockDriver{ &mockStockAPI };
 
-	AutoTradingSystem* autoTradingSystem;
 	StockBrokerDriver* stockBrokerDriver;
 
 	std::string ID = "1234";
@@ -91,71 +90,6 @@ TEST_F(TradingFixture, TEST_GET_PRICE) {
 	int actualPrice = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
 
 	EXPECT_EQ(expectedPrice, actualPrice);
-}
-
-///////////////////////////////////////////
-// Auto Trading system test
-//////////////////////////////////////////
-TEST_F(TradingFixture, TEST_buyNiceTiming__Buy_success) {
-	stockBrokerDriver = &mockDriver;
-	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
-	std::vector<int> price = { 12, 20, 30 };
-
-	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
-		.WillOnce(Return(price[0]))
-		.WillOnce(Return(price[1]))
-		.WillOnce(Return(price[2]))
-		.WillRepeatedly(Return(price[2]));
-
-	bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
-	EXPECT_EQ(true, success);
-}
-
-TEST_F(TradingFixture, TEST_buyNiceTiming__Buy_fail) {
-	stockBrokerDriver = &mockDriver;
-	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
-	std::vector<int> price = { 40, 20, 30 };
-
-	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
-		.WillOnce(Return(price[0]))
-		.WillOnce(Return(price[1]));
-
-	bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
-	EXPECT_EQ(false, success);
-}
-
-TEST_F(TradingFixture, TEST_sellNiceTiming__Sell_success) {
-	stockBrokerDriver = &mockDriver;
-	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
-	std::vector<int> price = { 30, 20, 12 };
-
-	EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
-		.WillOnce(Return(price[0]))
-		.WillOnce(Return(price[1]))
-		.WillOnce(Return(price[2]))
-		.WillRepeatedly(Return(price[2]));
-
-	int cellCount = 3;
-	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, cellCount);
-
-	EXPECT_EQ(true, success);
-}
-
-TEST_F(TradingFixture, TEST_sellNiceTiming__Sell_fail) {
-	stockBrokerDriver = &mockDriver;
-	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
-	std::vector<int> price = { 40, 20, 30 };
-
-	EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
-		.WillOnce(Return(price[0]))
-		.WillOnce(Return(price[1]))
-		.WillOnce(Return(price[2]))
-		.WillRepeatedly(Return(price[2]));
-
-	int cellCount = 3;
-	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
-
-	EXPECT_EQ(false, success);
 }
 
 ///////////////////////////////////////////
