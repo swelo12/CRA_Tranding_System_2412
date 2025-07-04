@@ -1,9 +1,4 @@
 #include "auto_trading_system.h"
-#include "kiwer_driver.cpp"
-#include "nemo_driver.cpp"
-#include "kiwer_api.cpp"
-#include "nemo_api.cpp"
-#include "mock_driver.cpp"
 
 #include <chrono>
 #include <iostream>
