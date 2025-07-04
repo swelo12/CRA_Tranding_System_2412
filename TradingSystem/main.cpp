@@ -28,6 +28,7 @@ public:
 	AutoTradingSystem* autoTradingSystem;
 	int money = 100;
 
+	StockBrokerDriver* stockBrokerDriver;
 private:
 	void SetUp() override {
 		// nothing;
@@ -40,14 +41,19 @@ private:
 //////////////////////////////////////////
 TEST_F(TraingFixture, TEST_LOGIN)
 {
+	stockBrokerDriver = &mockDriver;
+
 	EXPECT_CALL(mockStockAPI, login(_, _))
 		.Times(1)
 		.WillOnce(Return(true));
-	mockDriver.login(ID, SUCCESS_PASSWORD);
+	
+	stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
 }
 
 TEST_F(TraingFixture, TEST_BUY)
 {
+	stockBrokerDriver = &mockDriver;
+
 	int quantity = 10;
 	int price = 100;
 
@@ -55,11 +61,13 @@ TEST_F(TraingFixture, TEST_BUY)
 		.Times(1)
 		.WillOnce(Return(true));
 
-	mockDriver.buy(STOCK_CODE, quantity, price);
+	stockBrokerDriver->buy(STOCK_CODE, quantity, price);
 }
 
 TEST_F(TraingFixture, TEST_SELL)
 {
+	stockBrokerDriver = &mockDriver;
+
 	int quantity = 10;
 	int price = 100;
 
@@ -67,18 +75,19 @@ TEST_F(TraingFixture, TEST_SELL)
 		.Times(1)
 		.WillOnce(Return(true));
 
-	mockDriver.sell(STOCK_CODE, quantity, price);
+	stockBrokerDriver->sell(STOCK_CODE, quantity, price);
 }
 
 TEST_F(TraingFixture, TEST_GET_PRICE)
 {
+	stockBrokerDriver = &mockDriver;
 	int expectedPrice = 100;
 
 	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
 		.Times(1)
 		.WillOnce(Return(expectedPrice));
 
-	int actualPrice = mockDriver.getCurrentPrice(STOCK_CODE);
+	int actualPrice = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
 
 	EXPECT_EQ(expectedPrice, actualPrice);
 }
@@ -155,38 +164,42 @@ TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_fail)
 //////////////////////////////////////////
 TEST_F(TraingFixture, kiwerAPI_LOGIN)
 {
+	stockBrokerDriver = &kiwerDriver;
 	//EXPECT_CALL(kiwerAPI, login(_, _))
 	//	.Times(1);
 
-	kiwerDriver.login(ID, SUCCESS_PASSWORD);
+	stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
 }
 
 TEST_F(TraingFixture, kiwerAPI_BUY)
 {
+	stockBrokerDriver = &kiwerDriver;
 	int price = 100;
 	int num = 10;
 
 	//EXPECT_CALL(kiwerAPI, buy(_, _, _))
 	//	.Times(1);
 
-	kiwerDriver.buy(STOCK_CODE, price, num);
+	stockBrokerDriver->buy(STOCK_CODE, price, num);
 }
 
 TEST_F(TraingFixture, kiwerAPI_SELL)
 {
+	stockBrokerDriver = &kiwerDriver;
 	int price = 100;
 	int num = 10;
 
 	//EXPECT_CALL(kiwerAPI, sell(_, _, _))
 	//	.Times(1);
 
-	kiwerDriver.sell(STOCK_CODE, price, num);
+	stockBrokerDriver->sell(STOCK_CODE, price, num);
 }
 
 TEST_F(TraingFixture, kiwerAPI_GET_PRICE)
 {
+	stockBrokerDriver = &kiwerDriver;
 	int except = 100;
-	int actual = kiwerDriver.getCurrentPrice(STOCK_CODE);
+	int actual = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
 
 	//EXPECT_EQ(except, actual);
 }
@@ -197,38 +210,42 @@ TEST_F(TraingFixture, kiwerAPI_GET_PRICE)
 //////////////////////////////////////////
 TEST_F(TraingFixture, NemoAPI_LOGIN)
 {
+	stockBrokerDriver = &nemoDriver;
 	//EXPECT_CALL(kiwerAPI, login(_, _))
 	//	.Times(1);
 
-	nemoDriver.login(ID, SUCCESS_PASSWORD);
+	stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
 }
 
 TEST_F(TraingFixture, NemoAPI_BUY)
 {
+	stockBrokerDriver = &nemoDriver;
 	int price = 100;
 	int num = 10;
 
 	//EXPECT_CALL(kiwerAPI, buy(_, _, _))
 	//	.Times(1);
 
-	nemoDriver.buy(STOCK_CODE, price, num);
+	stockBrokerDriver->buy(STOCK_CODE, price, num);
 }
 
 TEST_F(TraingFixture, NemoAPI_SELL)
 {
+	stockBrokerDriver = &nemoDriver;
 	int price = 100;
 	int num = 10;
 
 	//EXPECT_CALL(kiwerAPI, sell(_, _, _))
 	//	.Times(1);
 
-	nemoDriver.sell(STOCK_CODE, price, num);
+	stockBrokerDriver->sell(STOCK_CODE, price, num);
 }
 
 TEST_F(TraingFixture, NemoAPI_GET_PRICE)
 {
+	stockBrokerDriver = &nemoDriver;
 	int except = 100;
-	int actual = nemoDriver.getCurrentPrice(STOCK_CODE);
+	int actual = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
 
 	//EXPECT_EQ(except, actual);
 }
