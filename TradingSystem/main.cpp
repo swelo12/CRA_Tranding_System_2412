@@ -2,6 +2,7 @@
 #include "nemo_api.cpp"
 #include "kiwer_api.cpp"
 #include "mock_driver.cpp"
+#include "auto_trading_system.h"
 
 using namespace testing;
 
