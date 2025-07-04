@@ -7,6 +7,10 @@
 #include "nemo_driver.cpp"
 #include "stock_broker_driver.h"
 
+
+#include <iostream>
+#include <sstream>
+
 using namespace testing;
 
 class TradingFixture : public Test {
@@ -25,11 +29,17 @@ public:
 	std::string STOCK_CODE = "code";
 	int money = 100;
 
+	std::ostringstream oss;
+	std::streambuf* old_buf;
 private:
 	KiwerAPI kiwerAPI;
 	NemoAPI nemoAPI;
 	void SetUp() override {
-		// nothing;
+		old_buf = std::cout.rdbuf(oss.rdbuf());  // cout 리다이렉션
+	}
+
+	void TearDown() override {
+		std::cout.rdbuf(old_buf);  // 원래 버퍼 복원
 	}
 };
 
@@ -153,10 +163,12 @@ TEST_F(TradingFixture, TEST_sellNiceTiming__Sell_fail) {
 //////////////////////////////////////////
 TEST_F(TradingFixture, kiwerAPI_LOGIN) {
 	stockBrokerDriver = &kiwerDriver;
-	// EXPECT_CALL(kiwerAPI, login(_, _))
-	//	.Times(1);
 
 	stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
+
+	std::string expect = ID + " login success\n" + ID + " [KiwerDriver] login success\n";
+	
+	EXPECT_EQ(oss.str(), expect);
 }
 
 TEST_F(TradingFixture, kiwerAPI_BUY) {
@@ -164,10 +176,12 @@ TEST_F(TradingFixture, kiwerAPI_BUY) {
 	int price = 100;
 	int num = 10;
 
-	// EXPECT_CALL(kiwerAPI, buy(_, _, _))
-	//	.Times(1);
-
 	stockBrokerDriver->buy(STOCK_CODE, price, num);
+
+	std::string expect = STOCK_CODE + " : Buy stock ( " + std::to_string(num) + " * " + std::to_string(price) + ")\n"
+		+ STOCK_CODE + " : [KiwerDriver] Buy stock ( " + std::to_string(num) + " * " + std::to_string(price) + ")\n";
+
+	EXPECT_EQ(oss.str(), expect);
 }
 
 TEST_F(TradingFixture, kiwerAPI_SELL) {
@@ -175,10 +189,12 @@ TEST_F(TradingFixture, kiwerAPI_SELL) {
 	int price = 100;
 	int num = 10;
 
-	// EXPECT_CALL(kiwerAPI, sell(_, _, _))
-	//	.Times(1);
-
 	stockBrokerDriver->sell(STOCK_CODE, price, num);
+
+	std::string expect = STOCK_CODE + " : Sell stock ( " + std::to_string(num) + " * " + std::to_string(price) + ")\n"
+		+ STOCK_CODE + " : [KiwerDriver] Sell stock ( " + std::to_string(num) + " * " + std::to_string(price) + ")\n";
+	
+	EXPECT_EQ(oss.str(), expect);
 }
 
 TEST_F(TradingFixture, kiwerAPI_GET_PRICE) {
@@ -194,10 +210,12 @@ TEST_F(TradingFixture, kiwerAPI_GET_PRICE) {
 //////////////////////////////////////////
 TEST_F(TradingFixture, NemoAPI_LOGIN) {
 	stockBrokerDriver = &nemoDriver;
-	// EXPECT_CALL(kiwerAPI, login(_, _))
-	//	.Times(1);
 
 	stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
+
+	std::string expect = "[NEMO]"+ID + " login GOOD\n" + ID + " [NemoDriver] login success\n";
+
+	EXPECT_EQ(oss.str(), expect);
 }
 
 TEST_F(TradingFixture, NemoAPI_BUY) {
@@ -205,10 +223,12 @@ TEST_F(TradingFixture, NemoAPI_BUY) {
 	int price = 100;
 	int num = 10;
 
-	// EXPECT_CALL(kiwerAPI, buy(_, _, _))
-	//	.Times(1);
-
 	stockBrokerDriver->buy(STOCK_CODE, price, num);
+
+	std::string expect = "[NEMO]code buy stock ( price : " + std::to_string(price) + " ) * ( count : " + std::to_string(num) + ")\n"
+		+ STOCK_CODE + " : [NemoDriver] Buy stock ( " + std::to_string(num) + " * " + std::to_string(price) + ")\n";
+
+	EXPECT_EQ(oss.str(), expect);
 }
 
 TEST_F(TradingFixture, NemoAPI_SELL) {
@@ -216,10 +236,12 @@ TEST_F(TradingFixture, NemoAPI_SELL) {
 	int price = 100;
 	int num = 10;
 
-	// EXPECT_CALL(kiwerAPI, sell(_, _, _))
-	//	.Times(1);
-
 	stockBrokerDriver->sell(STOCK_CODE, price, num);
+
+	std::string expect = "[NEMO]" + STOCK_CODE + " sell stock ( price : " + std::to_string(price) + " ) * ( count : " + std::to_string(num) + ")\n"
+		+ STOCK_CODE + " : [NemoDriver] Sell stock ( " + std::to_string(num) + " * " + std::to_string(price) + ")\n";
+
+	EXPECT_EQ(oss.str(), expect);
 }
 
 TEST_F(TradingFixture, NemoAPI_GET_PRICE) {
