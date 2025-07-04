@@ -1,6 +1,8 @@
 #include "auto_trading_system.h"
 
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 bool AutoTradingSystem::buyNiceTiming(std::string stockCode,
                                       int availableFunds) {
@@ -12,6 +14,7 @@ bool AutoTradingSystem::buyNiceTiming(std::string stockCode,
       return false;
     }
     prev = current;
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
 
   std::cout << "Bought " << availableFunds / current << " shares at" << current
@@ -28,6 +31,7 @@ bool AutoTradingSystem::sellNiceTiming(std::string stockCode, int numShares) {
       return false;
     }
     prev = current;
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
   std::cout << "Sold " << numShares << " shares at" << current
             << " dollars automatically!" << std::endl;
