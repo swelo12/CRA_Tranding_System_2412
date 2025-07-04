@@ -10,227 +10,227 @@
 using namespace testing;
 
 class TradingFixture : public Test {
- public:
-  MockStockAPI mockStockAPI;
+public:
+	MockStockAPI mockStockAPI;
 
-  KiwerDriver kiwerDriver{&kiwerAPI};
-  NemoDriver nemoDriver{&nemoAPI};
-  MockDriver mockDriver{&mockStockAPI};
+	KiwerDriver kiwerDriver{ &kiwerAPI };
+	NemoDriver nemoDriver{ &nemoAPI };
+	MockDriver mockDriver{ &mockStockAPI };
 
-  AutoTradingSystem* autoTradingSystem;
-  StockBrokerDriver* stockBrokerDriver;
+	AutoTradingSystem* autoTradingSystem;
+	StockBrokerDriver* stockBrokerDriver;
 
-  std::string ID = "1234";
-  std::string SUCCESS_PASSWORD = "1234";
-  std::string STOCK_CODE = "code";
-  int money = 100;
+	std::string ID = "1234";
+	std::string SUCCESS_PASSWORD = "1234";
+	std::string STOCK_CODE = "code";
+	int money = 100;
 
- private:
-  KiwerAPI kiwerAPI;
-  NemoAPI nemoAPI;
-  void SetUp() override {
-    // nothing;
-  }
+private:
+	KiwerAPI kiwerAPI;
+	NemoAPI nemoAPI;
+	void SetUp() override {
+		// nothing;
+	}
 };
 
 ///////////////////////////////////////////
 // Mock test
 //////////////////////////////////////////
 TEST_F(TradingFixture, TEST_LOGIN) {
-  stockBrokerDriver = &mockDriver;
+	stockBrokerDriver = &mockDriver;
 
-  EXPECT_CALL(mockStockAPI, login(_, _)).Times(1).WillOnce(Return(true));
+	EXPECT_CALL(mockStockAPI, login(_, _)).Times(1).WillOnce(Return(true));
 
-  stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
+	stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
 }
 
 TEST_F(TradingFixture, TEST_BUY) {
-  stockBrokerDriver = &mockDriver;
+	stockBrokerDriver = &mockDriver;
 
-  int quantity = 10;
-  int price = 100;
+	int quantity = 10;
+	int price = 100;
 
-  EXPECT_CALL(mockStockAPI, buy(STOCK_CODE, quantity, price))
-      .Times(1)
-      .WillOnce(Return(true));
+	EXPECT_CALL(mockStockAPI, buy(STOCK_CODE, quantity, price))
+		.Times(1)
+		.WillOnce(Return(true));
 
-  stockBrokerDriver->buy(STOCK_CODE, quantity, price);
+	stockBrokerDriver->buy(STOCK_CODE, quantity, price);
 }
 
 TEST_F(TradingFixture, TEST_SELL) {
-  stockBrokerDriver = &mockDriver;
+	stockBrokerDriver = &mockDriver;
 
-  int quantity = 10;
-  int price = 100;
+	int quantity = 10;
+	int price = 100;
 
-  EXPECT_CALL(mockStockAPI, sell(STOCK_CODE, quantity, price))
-      .Times(1)
-      .WillOnce(Return(true));
+	EXPECT_CALL(mockStockAPI, sell(STOCK_CODE, quantity, price))
+		.Times(1)
+		.WillOnce(Return(true));
 
-  stockBrokerDriver->sell(STOCK_CODE, quantity, price);
+	stockBrokerDriver->sell(STOCK_CODE, quantity, price);
 }
 
 TEST_F(TradingFixture, TEST_GET_PRICE) {
-  stockBrokerDriver = &mockDriver;
-  int expectedPrice = 100;
+	stockBrokerDriver = &mockDriver;
+	int expectedPrice = 100;
 
-  EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
-      .Times(1)
-      .WillOnce(Return(expectedPrice));
+	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
+		.Times(1)
+		.WillOnce(Return(expectedPrice));
 
-  int actualPrice = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
+	int actualPrice = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
 
-  EXPECT_EQ(expectedPrice, actualPrice);
+	EXPECT_EQ(expectedPrice, actualPrice);
 }
 
 ///////////////////////////////////////////
 // Auto Trading system test
 //////////////////////////////////////////
 TEST_F(TradingFixture, TEST_buyNiceTiming__Buy_success) {
-  stockBrokerDriver = &mockDriver;
-  autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
-  std::vector<int> price = {12, 20, 30};
+	stockBrokerDriver = &mockDriver;
+	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
+	std::vector<int> price = { 12, 20, 30 };
 
-  EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
-      .WillOnce(Return(price[0]))
-      .WillOnce(Return(price[1]))
-      .WillOnce(Return(price[2]))
-      .WillRepeatedly(Return(price[2]));
+	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
+		.WillOnce(Return(price[0]))
+		.WillOnce(Return(price[1]))
+		.WillOnce(Return(price[2]))
+		.WillRepeatedly(Return(price[2]));
 
-  bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
-  EXPECT_EQ(true, success);
+	bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
+	EXPECT_EQ(true, success);
 }
 
 TEST_F(TradingFixture, TEST_buyNiceTiming__Buy_fail) {
-  stockBrokerDriver = &mockDriver;
-  autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
-  std::vector<int> price = {40, 20, 30};
+	stockBrokerDriver = &mockDriver;
+	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
+	std::vector<int> price = { 40, 20, 30 };
 
-  EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
-      .WillOnce(Return(price[0]))
-      .WillOnce(Return(price[1]));
+	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
+		.WillOnce(Return(price[0]))
+		.WillOnce(Return(price[1]));
 
-  bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
-  EXPECT_EQ(false, success);
+	bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
+	EXPECT_EQ(false, success);
 }
 
 TEST_F(TradingFixture, TEST_sellNiceTiming__Sell_success) {
-  stockBrokerDriver = &mockDriver;
-  autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
-  std::vector<int> price = {30, 20, 12};
+	stockBrokerDriver = &mockDriver;
+	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
+	std::vector<int> price = { 30, 20, 12 };
 
-  EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
-      .WillOnce(Return(price[0]))
-      .WillOnce(Return(price[1]))
-      .WillOnce(Return(price[2]))
-      .WillRepeatedly(Return(price[2]));
+	EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
+		.WillOnce(Return(price[0]))
+		.WillOnce(Return(price[1]))
+		.WillOnce(Return(price[2]))
+		.WillRepeatedly(Return(price[2]));
 
-  int cellCount = 3;
-  bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, cellCount);
+	int cellCount = 3;
+	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, cellCount);
 
-  EXPECT_EQ(true, success);
+	EXPECT_EQ(true, success);
 }
 
 TEST_F(TradingFixture, TEST_sellNiceTiming__Sell_fail) {
-  stockBrokerDriver = &mockDriver;
-  autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
-  std::vector<int> price = {40, 20, 30};
+	stockBrokerDriver = &mockDriver;
+	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
+	std::vector<int> price = { 40, 20, 30 };
 
-  EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
-      .WillOnce(Return(price[0]))
-      .WillOnce(Return(price[1]))
-      .WillOnce(Return(price[2]))
-      .WillRepeatedly(Return(price[2]));
+	EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
+		.WillOnce(Return(price[0]))
+		.WillOnce(Return(price[1]))
+		.WillOnce(Return(price[2]))
+		.WillRepeatedly(Return(price[2]));
 
-  int cellCount = 3;
-  bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
+	int cellCount = 3;
+	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
 
-  EXPECT_EQ(false, success);
+	EXPECT_EQ(false, success);
 }
 
 ///////////////////////////////////////////
 // kiwerAPI test
 //////////////////////////////////////////
 TEST_F(TradingFixture, kiwerAPI_LOGIN) {
-  stockBrokerDriver = &kiwerDriver;
-  // EXPECT_CALL(kiwerAPI, login(_, _))
-  //	.Times(1);
+	stockBrokerDriver = &kiwerDriver;
+	// EXPECT_CALL(kiwerAPI, login(_, _))
+	//	.Times(1);
 
-  stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
+	stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
 }
 
 TEST_F(TradingFixture, kiwerAPI_BUY) {
-  stockBrokerDriver = &kiwerDriver;
-  int price = 100;
-  int num = 10;
+	stockBrokerDriver = &kiwerDriver;
+	int price = 100;
+	int num = 10;
 
-  // EXPECT_CALL(kiwerAPI, buy(_, _, _))
-  //	.Times(1);
+	// EXPECT_CALL(kiwerAPI, buy(_, _, _))
+	//	.Times(1);
 
-  stockBrokerDriver->buy(STOCK_CODE, price, num);
+	stockBrokerDriver->buy(STOCK_CODE, price, num);
 }
 
 TEST_F(TradingFixture, kiwerAPI_SELL) {
-  stockBrokerDriver = &kiwerDriver;
-  int price = 100;
-  int num = 10;
+	stockBrokerDriver = &kiwerDriver;
+	int price = 100;
+	int num = 10;
 
-  // EXPECT_CALL(kiwerAPI, sell(_, _, _))
-  //	.Times(1);
+	// EXPECT_CALL(kiwerAPI, sell(_, _, _))
+	//	.Times(1);
 
-  stockBrokerDriver->sell(STOCK_CODE, price, num);
+	stockBrokerDriver->sell(STOCK_CODE, price, num);
 }
 
 TEST_F(TradingFixture, kiwerAPI_GET_PRICE) {
-  stockBrokerDriver = &kiwerDriver;
-  int except = 100;
-  int actual = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
+	stockBrokerDriver = &kiwerDriver;
+	int except = 100;
+	int actual = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
 
-  // EXPECT_EQ(except, actual);
+	// EXPECT_EQ(except, actual);
 }
 
 ///////////////////////////////////////////
 // NemoAPI test
 //////////////////////////////////////////
 TEST_F(TradingFixture, NemoAPI_LOGIN) {
-  stockBrokerDriver = &nemoDriver;
-  // EXPECT_CALL(kiwerAPI, login(_, _))
-  //	.Times(1);
+	stockBrokerDriver = &nemoDriver;
+	// EXPECT_CALL(kiwerAPI, login(_, _))
+	//	.Times(1);
 
-  stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
+	stockBrokerDriver->login(ID, SUCCESS_PASSWORD);
 }
 
 TEST_F(TradingFixture, NemoAPI_BUY) {
-  stockBrokerDriver = &nemoDriver;
-  int price = 100;
-  int num = 10;
+	stockBrokerDriver = &nemoDriver;
+	int price = 100;
+	int num = 10;
 
-  // EXPECT_CALL(kiwerAPI, buy(_, _, _))
-  //	.Times(1);
+	// EXPECT_CALL(kiwerAPI, buy(_, _, _))
+	//	.Times(1);
 
-  stockBrokerDriver->buy(STOCK_CODE, price, num);
+	stockBrokerDriver->buy(STOCK_CODE, price, num);
 }
 
 TEST_F(TradingFixture, NemoAPI_SELL) {
-  stockBrokerDriver = &nemoDriver;
-  int price = 100;
-  int num = 10;
+	stockBrokerDriver = &nemoDriver;
+	int price = 100;
+	int num = 10;
 
-  // EXPECT_CALL(kiwerAPI, sell(_, _, _))
-  //	.Times(1);
+	// EXPECT_CALL(kiwerAPI, sell(_, _, _))
+	//	.Times(1);
 
-  stockBrokerDriver->sell(STOCK_CODE, price, num);
+	stockBrokerDriver->sell(STOCK_CODE, price, num);
 }
 
 TEST_F(TradingFixture, NemoAPI_GET_PRICE) {
-  stockBrokerDriver = &nemoDriver;
-  int except = 100;
-  int actual = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
+	stockBrokerDriver = &nemoDriver;
+	int except = 100;
+	int actual = stockBrokerDriver->getCurrentPrice(STOCK_CODE);
 
-  // EXPECT_EQ(except, actual);
+	// EXPECT_EQ(except, actual);
 }
 
 int main() {
-  ::testing::InitGoogleMock();
-  return RUN_ALL_TESTS();
+	::testing::InitGoogleMock();
+	return RUN_ALL_TESTS();
 }
