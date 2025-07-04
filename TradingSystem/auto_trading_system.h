@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 #include "stock_broker_driver.h"
 
 class AutoTradingSystem {
@@ -7,9 +8,11 @@ class AutoTradingSystem {
   AutoTradingSystem(StockBrokerDriver& driverInterface)
       : driverInterface{driverInterface} {};
 
-  bool buyNiceTiming(std::string stockCode, int availableFunds);
-  bool sellNiceTiming(std::string stockCode, int numShares);
+  bool buyNiceTiming(std::string& stockCode, int availableFunds);
+  bool sellNiceTiming(std::string& stockCode, int numShares);
 
  private:
-     StockBrokerDriver& driverInterface;
+  StockBrokerDriver& driverInterface;
+  int checkPriceIncrease(std::string& stockCode);
+  int checkPriceDecrease(std::string& stockCode);
 };
