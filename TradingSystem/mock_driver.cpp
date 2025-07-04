@@ -6,11 +6,9 @@ using std::string;
 
 class MockStockAPI {
 public:
-	// StockBrokerDriver의 login, buy, sell이 bool을 반환하므로 MockStockAPI도 bool 반환
 	MOCK_METHOD(bool, login, (const string& id, const string& pass), ());
 	MOCK_METHOD(bool, buy, (const string& stockCode, int quantity, int price), ());
 	MOCK_METHOD(bool, sell, (const string& stockCode, int quantity, int price), ());
-	// StockBrokerDriver의 getCurrentPrice와 메서드 이름이 일치해야 합니다.
 	MOCK_METHOD(int, getCurrentPrice, (const string& stockCode), ());
 };
 
