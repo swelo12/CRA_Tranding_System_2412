@@ -1,35 +1,62 @@
 #include "auto_trading_system.h"
+#include "kiwer_driver.cpp"
+#include "nemo_driver.cpp"
+#include "kiwer_api.cpp"
+#include "nemo_api.cpp"
+#include "mock_driver.cpp"
 
 #include <chrono>
 #include <iostream>
 #include <thread>
 
-bool AutoTradingSystem::buyNiceTiming(std::string& stockCode,
+void AutoTradingSystem::selectBroker(StockBrokerDriver* driver) {
+	driverInterface = driver;
+}
+
+bool AutoTradingSystem::login(const std::string& id, const std::string& pass) {
+	return driverInterface->login(id, pass);
+}
+
+bool AutoTradingSystem::buy(const std::string& stockCode, int price, int numShare) {
+	return driverInterface->buy(stockCode, price, numShare);
+}
+
+bool AutoTradingSystem::sell(const std::string& stockCode, int price, int numShare) {
+	return driverInterface->sell(stockCode, price, numShare);
+}
+
+int AutoTradingSystem::getPrice(const std::string& stockCode) {
+	return driverInterface->getCurrentPrice(stockCode);
+}
+
+bool AutoTradingSystem::buyNiceTiming(const std::string& stockCode,
 	int availableFunds) {
 	int price = checkPriceIncrease(stockCode);
 	if (price == -1) {
 		return false;
 	}
+	buy(stockCode, price, availableFunds / price);
 	std::cout << "Bought " << availableFunds / price << " shares at " << price
 		<< " dollars automatically!" << std::endl;
 	return true;
 }
 
-bool AutoTradingSystem::sellNiceTiming(std::string& stockCode, int numShares) {
+bool AutoTradingSystem::sellNiceTiming(const std::string& stockCode, int numShares) {
 	int price = checkPriceDecrease(stockCode);
 	if (price == -1) {
 		return false;
 	}
+	sell(stockCode, price, numShares);
 	std::cout << "Sold " << numShares << " shares at " << price
 		<< " dollars automatically!" << std::endl;
 	return true;
 }
 
-int AutoTradingSystem::checkPriceIncrease(std::string& stockCode) {
+int AutoTradingSystem::checkPriceIncrease(const std::string& stockCode) {
 	int current = 0;
 	int prev = 0;
 	for (int i = 0; i < 3; i++) {
-		current = driverInterface.getCurrentPrice(stockCode);
+		current = getPrice(stockCode);
 		if (current < prev) {
 			return -1;
 		}
@@ -39,11 +66,11 @@ int AutoTradingSystem::checkPriceIncrease(std::string& stockCode) {
 	return current;
 }
 
-int AutoTradingSystem::checkPriceDecrease(std::string& stockCode) {
+int AutoTradingSystem::checkPriceDecrease(const std::string& stockCode) {
 	int prev = -1;
 	int current = -1;
 	for (int i = 0; i < 3; i++) {
-		current = driverInterface.getCurrentPrice(stockCode);
+		current = getPrice(stockCode);
 		if (prev != -1 && current > prev) {
 			return -1;
 		}

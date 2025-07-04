@@ -22,7 +22,6 @@ public:
 	MockDriver mockDriver{ &mockStockAPI };
 
 	AutoTradingSystem* autoTradingSystem;
-	StockBrokerDriver* stockBrokerDriver;
 
 	std::string ID = "1234";
 	std::string SUCCESS_PASSWORD = "1234";
@@ -47,8 +46,7 @@ private:
 // Auto Trading system test
 //////////////////////////////////////////
 TEST_F(AutoTradingFixture, TEST_buyNiceTiming__Buy_success) {
-	stockBrokerDriver = &mockDriver;
-	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
+	autoTradingSystem = new AutoTradingSystem(&mockDriver);
 	std::vector<int> price = { 12, 20, 30 };
 
 	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
@@ -62,8 +60,7 @@ TEST_F(AutoTradingFixture, TEST_buyNiceTiming__Buy_success) {
 }
 
 TEST_F(AutoTradingFixture, TEST_buyNiceTiming__Buy_fail) {
-	stockBrokerDriver = &mockDriver;
-	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
+	autoTradingSystem = new AutoTradingSystem(&mockDriver);
 	std::vector<int> price = { 40, 20, 30 };
 
 	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
@@ -75,8 +72,7 @@ TEST_F(AutoTradingFixture, TEST_buyNiceTiming__Buy_fail) {
 }
 
 TEST_F(AutoTradingFixture, TEST_sellNiceTiming__Sell_success) {
-	stockBrokerDriver = &mockDriver;
-	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
+	autoTradingSystem = new AutoTradingSystem(&mockDriver);
 	std::vector<int> price = { 30, 20, 12 };
 
 	EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
@@ -92,8 +88,7 @@ TEST_F(AutoTradingFixture, TEST_sellNiceTiming__Sell_success) {
 }
 
 TEST_F(AutoTradingFixture, TEST_sellNiceTiming__Sell_fail) {
-	stockBrokerDriver = &mockDriver;
-	autoTradingSystem = new AutoTradingSystem(*stockBrokerDriver);
+	autoTradingSystem = new AutoTradingSystem(&mockDriver);
 	std::vector<int> price = { 40, 20, 30 };
 
 	EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
