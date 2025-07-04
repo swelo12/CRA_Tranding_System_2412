@@ -8,19 +8,16 @@ public:
 
 	bool login(const std::string& id, const std::string& pass) override {
 		nemoAPI->certification(id, pass);
-		std::cout << id << " [NemoDriver] login success\n";
 		return true;
 	}
 
 	bool buy(const std::string& stockCode, int quantity, int price) override  {
 		nemoAPI->purchasingStock(stockCode, quantity, price);
-		std::cout << stockCode << " : [NemoDriver] Buy stock ( " << price << " * " << quantity << ")\n";
 		return true;
 	}
 
 	bool sell(const std::string& stockCode, int quantity, int price) override  {
 		nemoAPI->sellingStock(stockCode, quantity, price);
-		std::cout << stockCode << " : [NemoDriver] Sell stock ( " << price << " * " << quantity << ")\n";
 		return true;
 	}
 
