@@ -7,7 +7,7 @@ bool AutoTradingSystem::buyNiceTiming(std::string stockCode,
   int prev = -1;
   int current = -1;
   for (int i = 0; i < 3; i++) {
-    current = driverInterface.getPrice(stockCode);
+    current = driverInterface.getCurrentPrice(stockCode);
     if (current < prev) {
       return false;
     }
@@ -23,7 +23,7 @@ bool AutoTradingSystem::sellNiceTiming(std::string stockCode, int numShares) {
   int prev = -1;
   int current = -1;
   for (int i = 0; i < 3; i++) {
-    current = driverInterface.getPrice(stockCode);
+    current = driverInterface.getCurrentPrice(stockCode);
     if (prev != -1 && current > prev) {
       return false;
     }
