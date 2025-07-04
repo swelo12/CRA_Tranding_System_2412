@@ -1,10 +1,11 @@
 #include "gmock/gmock.h"
 #include "nemo_api.cpp"
 #include "kiwer_api.cpp"
+#include "mock_driver.cpp"
 
 using namespace testing;
 
-class TraingFixture {
+class TraingFixture : public Test{
 public:
 	StockerBrockerDriverInterface mockInterface;
 	std::string ID = "1234";
@@ -12,15 +13,20 @@ public:
 	std::string STOCK_CODE = "code";
 
 	AutoTradingSystem* autoTradingSystem; // need to  inheritance
+	int money = 100;
 
+	MockStockAPI mockStockAPI;
+	MockDriver* mockDriver = new MockDriver(&mockStockAPI);
 private:
-
+	void SetUp() override {
+		// nothing;
+	}
 };
 
 /* 1. StockerBrockerDriverInterface Mock Test*/
 TEST_F(TraingFixture, TEST_LOGIN)
 {
-	mockInterface.login(ID, SUCCESS_PASSWORD);
+	mockDriver->login(ID, SUCCESS_PASSWORD);
 
 	EXPECT_CALL(StockerBrockerDriverInterface, login(_,_))
 		.call(1);
@@ -31,7 +37,7 @@ TEST_F(TraingFixture, TEST_BUY)
 	int price = 100;
 	int num = 10;
 
-	mockInterface.buy(STOCK_CODE, price, num);
+	mockDriver->buy(STOCK_CODE, price, num);
 
 	EXPECT_CALL(StockerBrockerDriverInterface, buy(_,_, _))
 		.call(1);
@@ -42,7 +48,7 @@ TEST_F(TraingFixture, TEST_SELL)
 	int price = 100;
 	int num = 10;
 
-	mockInterface.sell(STOCK_CODE, price, num);
+	mockDriver->sell(STOCK_CODE, price, num);
 
 	EXPECT_CALL(StockerBrockerDriverInterface, sell(_, _, _))
 		.call(1);
@@ -51,7 +57,7 @@ TEST_F(TraingFixture, TEST_SELL)
 TEST_F(TraingFixture, TEST_GET_PRICE)
 {
 	int except = 100;
-	int actual = mockInterface.getPrice(STOCK_CODE);
+	int actual = mockDriver->getPrice(STOCK_CODE);
 
 	EXPECT_EQ(except, actual);
 }
@@ -67,10 +73,10 @@ TEST_F(TraingFixture, TEST_buyNiceTiming__Buy_success)
 		.WillOnce(Return(price[0]))
 		.WillOnce(Return(price[1]))
 		.WillOnce(Return(price[2]));
+		.WillRepeatedly(Return(price[2]));
 
-	bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, price[2]);
-
-	EXPECT_EQ(true, success);
+	int buy = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
+	EXPECT_EQ(money/ price[2], buy);
 }
 
 TEST_F(TraingFixture, TEST_buyNiceTiming__Buy_fail)
@@ -78,14 +84,14 @@ TEST_F(TraingFixture, TEST_buyNiceTiming__Buy_fail)
 	autoTradingSystem = new AutoTradingSystem(mockInterface); // inherit mock.
 	std::vector<int> price = { 40,20,30 }
 
-		EXPECT_CALL(mockInterface, getPrice(_))
+	EXPECT_CALL(mockInterface, getPrice(_))
 		.WillOnce(Return(price[0]))
 		.WillOnce(Return(price[1]))
 		.WillOnce(Return(price[2]));
+		.WillRepeatedly(Return(price[2]));
 
-	bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, price[2]);
-
-	EXPECT_EQ(false, success);
+	int buy = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
+	EXPECT_EQ(0, success);
 }
 
 TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_success)
@@ -93,14 +99,16 @@ TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_success)
 	autoTradingSystem = new AutoTradingSystem(mockInterface); // inherit mock.
 	std::vector<int> price = { 12,20,30 }
 
-		EXPECT_CALL(mockInterface, getPrice(_))
+	EXPECT_CALL(mockInterface, getPrice(_))
 		.WillOnce(Return(price[0]))
 		.WillOnce(Return(price[1]))
 		.WillOnce(Return(price[2]));
+		.WillRepeatedly(Return(price[2]));
 
-	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
+	int cellCount = 3;
+	int sellMoney = autoTradingSystem->sellNiceTiming(STOCK_CODE, cellCount);
 
-	EXPECT_EQ(true, success);
+	EXPECT_EQ(cellCount * price[2], sellMoney);
 }
 
 TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_fail)
@@ -108,16 +116,17 @@ TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_fail)
 	autoTradingSystem = new AutoTradingSystem(mockInterface); // inherit mock.
 	std::vector<int> price = { 40,20,30 }
 
-		EXPECT_CALL(mockInterface, getPrice(_))
+	EXPECT_CALL(mockInterface, getPrice(_))
 		.WillOnce(Return(price[0]))
 		.WillOnce(Return(price[1]))
 		.WillOnce(Return(price[2]));
+		.WillRepeatedly(Return(price[2]));
 
-	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
+	int cellCount = 3;
+	int sellMoney = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
 
-	EXPECT_EQ(false, success);
+	EXPECT_EQ(0, sellMoney);
 }
-
 
 int main() {
 	::testing::InitGoogleMock();
