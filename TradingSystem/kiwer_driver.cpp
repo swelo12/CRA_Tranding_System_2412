@@ -1,5 +1,6 @@
 #include <iostream>
 #include "kiwer_api.cpp"
+#include "stock_broker_driver.h"
 
 class KiwerDriver : public StockBrokerDriver {
 public:
