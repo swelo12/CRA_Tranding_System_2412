@@ -1,7 +1,13 @@
 #include "gmock/gmock.h"
+
 #include "nemo_api.cpp"
+#include "nemo_driver.cpp"
+
 #include "kiwer_api.cpp"
+#include "kiwer_driver.cpp"
+
 #include "mock_driver.cpp"
+#include "auto_trading_system.h"
 
 using namespace testing;
 
@@ -16,6 +22,12 @@ public:
 
 	MockStockAPI mockStockAPI;
 	MockDriver* mockDriver = new MockDriver(&mockStockAPI);
+
+	KiwerAPI kiwerAPI;
+	KiwerDriver* kiwerDriver = new KiwerDriver(&kiwerAPI);
+
+	NemoAPI nemoAPI;
+	NemoDriver* nemoDriver = new NemoDriver(&nemoAPI);
 private:
 	void SetUp() override {
 		// nothing;
@@ -124,6 +136,84 @@ TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_fail)
 	bool success = autoTradingSystem->sellNiceTiming(STOCK_CODE, price[2]);
 
 	EXPECT_EQ(false, success);
+}
+
+/* 3. kiwer Test*/
+TEST_F(TraingFixture, kiwerAPI_LOGIN)
+{
+	EXPECT_CALL(kiwerAPI, login(_, _))
+		.call(1);
+
+	kiwerDriver->login(ID, SUCCESS_PASSWORD);
+}
+
+TEST_F(TraingFixture, kiwerAPI_BUY)
+{
+	int price = 100;
+	int num = 10;
+
+	EXPECT_CALL(kiwerAPI, buy(_, _, _))
+		.call(1);
+
+	kiwerDriver->buy(STOCK_CODE, price, num);
+}
+
+TEST_F(TraingFixture, kiwerAPI_SELL)
+{
+	int price = 100;
+	int num = 10;
+
+	EXPECT_CALL(kiwerAPI, sell(_, _, _))
+		.call(1);
+
+	kiwerDriver->sell(STOCK_CODE, price, num);
+}
+
+TEST_F(TraingFixture, kiwerAPI_GET_PRICE)
+{
+	int except = 100;
+	int actual = kiwerDriver->getPrice(STOCK_CODE);
+
+	EXPECT_EQ(except, actual);
+}
+
+/* 4. nemo Test*/
+TEST_F(TraingFixture, nemoAPI_LOGIN)
+{
+	EXPECT_CALL(nemoAPI, login(_, _))
+		.call(1);
+
+	nemoDriver->login(ID, SUCCESS_PASSWORD);
+}
+
+TEST_F(TraingFixture, nemoAPI_BUY)
+{
+	int price = 100;
+	int num = 10;
+
+	EXPECT_CALL(nemoAPI, buy(_, _, _))
+		.call(1);
+
+	nemoDriver->buy(STOCK_CODE, price, num);
+}
+
+TEST_F(TraingFixture, nemoAPI_SELL)
+{
+	int price = 100;
+	int num = 10;
+
+	EXPECT_CALL(nemoAPI, sell(_, _, _))
+		.call(1);
+
+	nemoDriver->sell(STOCK_CODE, price, num);
+}
+
+TEST_F(TraingFixture, nemoAPI_GET_PRICE)
+{
+	int except = 100;
+	int actual = nemoDriver->getPrice(STOCK_CODE);
+
+	EXPECT_EQ(except, actual);
 }
 
 int main() {
