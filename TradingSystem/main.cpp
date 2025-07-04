@@ -88,6 +88,7 @@ TEST_F(TraingFixture, TEST_GET_PRICE)
 //////////////////////////////////////////
 TEST_F(TraingFixture, TEST_buyNiceTiming__Buy_success)
 {
+	// TODO: Change mockDriver to StockBrokerDriver after implemented
 	autoTradingSystem = new AutoTradingSystem(mockDriver); // inherit mock.
 	std::vector<int> price = { 12,20,30 };
 
@@ -97,8 +98,8 @@ TEST_F(TraingFixture, TEST_buyNiceTiming__Buy_success)
 		.WillOnce(Return(price[2]))
 		.WillRepeatedly(Return(price[2]));
 
-	int buy = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
-	EXPECT_EQ(money / price[2], buy);
+	bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
+    EXPECT_EQ(true, success);
 }
 
 TEST_F(TraingFixture, TEST_buyNiceTiming__Buy_fail)
@@ -107,19 +108,17 @@ TEST_F(TraingFixture, TEST_buyNiceTiming__Buy_fail)
 	std::vector<int> price = { 40,20,30 };
 
 	EXPECT_CALL(mockStockAPI, getCurrentPrice(STOCK_CODE))
-		.WillOnce(Return(price[0]))
-		.WillOnce(Return(price[1]))
-		.WillOnce(Return(price[2]))
-		.WillRepeatedly(Return(price[2]));
+            .WillOnce(Return(price[0]))
+            .WillOnce(Return(price[1]));
 
-	int buy = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
-	EXPECT_EQ(0, buy);
+	bool success = autoTradingSystem->buyNiceTiming(STOCK_CODE, money);
+    EXPECT_EQ(false, success);
 }
 
-TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_success)
+TEST_F(TraingFixture, TEST_sellNiceTiming__Sell_success)
 {
 	autoTradingSystem = new AutoTradingSystem(mockDriver); // inherit mock.
-	std::vector<int> price = { 12,20,30 };
+	std::vector<int> price = { 30,20,12 };
 
 	EXPECT_CALL(mockStockAPI, getCurrentPrice(_))
 		.WillOnce(Return(price[0]))
@@ -133,7 +132,7 @@ TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_success)
 	EXPECT_EQ(true, success);
 }
 
-TEST_F(TraingFixture, TEST_sellNiceTiming__Buy_fail)
+TEST_F(TraingFixture, TEST_sellNiceTiming__Sell_fail)
 {
 	autoTradingSystem = new AutoTradingSystem(mockDriver); // inherit mock.
 	std::vector<int> price = { 40,20,30 };
