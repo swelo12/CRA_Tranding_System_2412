@@ -31,7 +31,7 @@ public:
 		std::cout << stockCode << " : [Mock Driver] Sell stock ( " << price << " * " << count << ")\n";
 	}
 
-	int currentPrice(std::string stockCode) {
+	int getCurrentPrice(std::string stockCode) {
 		int stockPrice = mockStockAPI->currentPrice(stockCode);
 		if (stockPrice < 0)
 			std::cout << stockCode << " : [Warning] Mock current price under zero ( " << stockPrice << " )\n";
