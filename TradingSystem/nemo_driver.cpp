@@ -4,23 +4,27 @@
 
 class NemoDriver : public StockBrokerDriver {
 public:
+	NemoDriver(NemoAPI* nemoAPI) : nemoAPI{ nemoAPI } {}
 
-	void login(std::string ID, std::string password) {
-		nemoAPI->certification(ID, password);
-		std::cout << ID << " [NemoDriver] login success\n";
+	bool login(const std::string& id, const std::string& pass) override {
+		nemoAPI->certification(id, pass);
+		std::cout << id << " [NemoDriver] login success\n";
+		return true;
 	}
 
-	void buy(std::string stockCode, int count, int price) {
-		nemoAPI->purchasingStock(stockCode, count, price);
-		std::cout << stockCode << " : [NemoDriver] Buy stock ( " << price << " * " << count << ")\n";
+	bool buy(const std::string& stockCode, int quantity, int price) override  {
+		nemoAPI->purchasingStock(stockCode, quantity, price);
+		std::cout << stockCode << " : [NemoDriver] Buy stock ( " << price << " * " << quantity << ")\n";
+		return true;
 	}
 
-	void sell(std::string stockCode, int count, int price) {
-		nemoAPI->sellingStock(stockCode, count, price);
-		std::cout << stockCode << " : [NemoDriver] Sell stock ( " << price << " * " << count << ")\n";
+	bool sell(const std::string& stockCode, int quantity, int price) override  {
+		nemoAPI->sellingStock(stockCode, quantity, price);
+		std::cout << stockCode << " : [NemoDriver] Sell stock ( " << price << " * " << quantity << ")\n";
+		return true;
 	}
 
-	int currentPrice(std::string stockCode) {
+	int getCurrentPrice(const std::string& stockCode) override  {
 		int stockPrice = nemoAPI->getMarketPrice(stockCode, 0);
 		if (stockPrice < 0) {
 			std::cout << "[NemoDriver] Abnormal price. price set to 0" << "\n";

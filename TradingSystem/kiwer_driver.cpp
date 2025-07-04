@@ -4,23 +4,27 @@
 
 class KiwerDriver : public StockBrokerDriver {
 public:
+	KiwerDriver(KiwerAPI* kiwerAPI) : kiwerAPI{ kiwerAPI } {}
 
-	void login(std::string ID, std::string password) {
-		kiwerAPI->login(ID, password);
-		std::cout << ID << " [KiwerDriver] login success\n";
+	bool login(const std::string& id, const std::string& pass) override{
+		kiwerAPI->login(id, pass);
+		std::cout << id << " [KiwerDriver] login success\n";
+		return true;
 	}
 
-	void buy(std::string stockCode, int count, int price) {
-		kiwerAPI->buy(stockCode, count, price);
-		std::cout << stockCode << " : [KiwerDriver] Buy stock ( " << price << " * " << count << ")\n";
+	bool buy(const std::string& stockCode, int quantity, int price) override {
+		kiwerAPI->buy(stockCode, quantity, price);
+		std::cout << stockCode << " : [KiwerDriver] Buy stock ( " << price << " * " << quantity << ")\n";
+		return true;
 	}
 
-	void sell(std::string stockCode, int count, int price) {
-		kiwerAPI->sell(stockCode, count, price);
-		std::cout << stockCode << " : [KiwerDriver] Sell stock ( " << price << " * " << count << ")\n";
+	bool sell(const std::string& stockCode, int quantity, int price) override {
+		kiwerAPI->sell(stockCode, quantity, price);
+		std::cout << stockCode << " : [KiwerDriver] Sell stock ( " << price << " * " << quantity << ")\n";
+		return true;
 	}
 
-	int currentPrice(std::string stockCode) {
+	int getCurrentPrice(const std::string& stockCode) override {
 		int stockPrice = kiwerAPI->currentPrice(stockCode);
 		if (stockPrice < 0) {
 			std::cout << "Abnormal price. price set to 0" << "\n";

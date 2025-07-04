@@ -1,15 +1,15 @@
 #pragma once
 #include <string>
-#include "driver_interface.h"
+#include "stock_broker_driver.h"
 
 class AutoTradingSystem {
  public:
-  AutoTradingSystem(StockerBrockerDriverInterface& driverInterface)
+  AutoTradingSystem(StockBrokerDriver& driverInterface)
       : driverInterface{driverInterface} {};
 
   bool buyNiceTiming(std::string stockCode, int availableFunds);
   bool sellNiceTiming(std::string stockCode, int numShares);
 
  private:
-  StockerBrockerDriverInterface& driverInterface;
+     StockBrokerDriver& driverInterface;
 };
