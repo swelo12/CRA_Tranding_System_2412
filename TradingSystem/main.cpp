@@ -1,10 +1,11 @@
 #include "gmock/gmock.h"
 #include "nemo_api.cpp"
 #include "kiwer_api.cpp"
+#include "mock_driver.cpp"
 
 using namespace testing;
 
-class TraingFixture {
+class TraingFixture : public Test{
 public:
 	StockerBrockerDriverInterface mockInterface;
 	std::string ID = "1234";
@@ -13,14 +14,19 @@ public:
 
 	AutoTradingSystem* autoTradingSystem; // need to  inheritance
 	int money = 100;
-private:
 
+	MockStockAPI mockStockAPI;
+	MockDriver* mockDriver = new MockDriver(&mockStockAPI);
+private:
+	void SetUp() override {
+		// nothing;
+	}
 };
 
 /* 1. StockerBrockerDriverInterface Mock Test*/
 TEST_F(TraingFixture, TEST_LOGIN)
 {
-	mockInterface.login(ID, SUCCESS_PASSWORD);
+	mockDriver->login(ID, SUCCESS_PASSWORD);
 
 	EXPECT_CALL(StockerBrockerDriverInterface, login(_,_))
 		.call(1);
@@ -31,7 +37,7 @@ TEST_F(TraingFixture, TEST_BUY)
 	int price = 100;
 	int num = 10;
 
-	mockInterface.buy(STOCK_CODE, price, num);
+	mockDriver->buy(STOCK_CODE, price, num);
 
 	EXPECT_CALL(StockerBrockerDriverInterface, buy(_,_, _))
 		.call(1);
@@ -42,7 +48,7 @@ TEST_F(TraingFixture, TEST_SELL)
 	int price = 100;
 	int num = 10;
 
-	mockInterface.sell(STOCK_CODE, price, num);
+	mockDriver->sell(STOCK_CODE, price, num);
 
 	EXPECT_CALL(StockerBrockerDriverInterface, sell(_, _, _))
 		.call(1);
@@ -51,7 +57,7 @@ TEST_F(TraingFixture, TEST_SELL)
 TEST_F(TraingFixture, TEST_GET_PRICE)
 {
 	int except = 100;
-	int actual = mockInterface.getPrice(STOCK_CODE);
+	int actual = mockDriver->getPrice(STOCK_CODE);
 
 	EXPECT_EQ(except, actual);
 }
